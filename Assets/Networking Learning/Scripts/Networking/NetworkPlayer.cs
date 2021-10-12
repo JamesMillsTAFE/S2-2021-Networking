@@ -8,6 +8,33 @@ namespace NetworkGame.Networking
     public class NetworkPlayer : NetworkBehaviour
     {
         [SerializeField] private GameObject enemyToSpawn;
+        [SyncVar(hook = nameof(OnSetCubeColor)), SerializeField] private Color cubeColor;
+
+        private readonly SyncList<float> syncedFloats = new SyncList<float>();
+
+        // SyncVarHooks get called in the order the VARIABLES are defined not the functions
+        // [SyncVar(hook = "SetX")] public float x;
+        // [SyncVar(hook = "SetY")] public float y;
+        // [SyncVar(hook = "SetZ")] public float z;
+        //
+        // [Command]
+        // public void CmdSetPosition(float _x, float _y, float _z)
+        // {
+        //     z = _z;
+        //     x = _x;
+        //     y = _y;
+        // }
+        
+        private Material cachedMaterial;
+
+        // Typical naming convention for SyncVarHooks is OnSet<VariableName>
+        private void OnSetCubeColor(Color _old, Color _new)
+        {
+            if(cachedMaterial == null)
+                cachedMaterial = gameObject.GetComponent<MeshRenderer>().material;
+
+            cachedMaterial.color = _new;
+        }
         
         private void Awake()
         {
@@ -16,6 +43,15 @@ namespace NetworkGame.Networking
 
         private void Update()
         {
+            // MeshRenderer render = gameObject.GetComponent<MeshRenderer>();
+            // render.material.color = cubeColor;
+
+            string floatString = "";
+            for(int i = 0; i < syncedFloats.Count; i++)
+                floatString += syncedFloats[i] + ",";
+            
+            Debug.Log(floatString, gameObject);
+            
             // First determine if this function is being run on the local player
             if(isLocalPlayer)
             {
@@ -49,8 +85,11 @@ namespace NetworkGame.Networking
         [Command]
         public void CmdRandomColor()
         {
+            // SyncVar MUST be set on the server, otherwise it won't be synced between clients
+            cubeColor = Random.ColorHSV(0, 1, 1, 1, 1, 1);
+
             // This is running on the server
-            RpcRandomColor(Random.Range(0f, 1f));
+            // RpcRandomColor(Random.Range(0f, 1f));
         }
         
         // RULES FOR CLIENT RPC:
@@ -58,14 +97,14 @@ namespace NetworkGame.Networking
         // 2. Must follow the correct naming convention: The function name MUST start with 'Rpc' exactly like that
         // 3. The function must have the attribute [ClientRpc] found in Mirror namespace
         // 4. Can only be certain serializable types (see Command in the documentation)
-        [ClientRpc]
-        public void RpcRandomColor(float _hue)
-        {
-            // This is running on every instance of the same object that the client was calling from.
-            // i.e. Red GO on Red Client runs Cmd, Red GO on Red, Green and Blue client's run Rpc
-            MeshRenderer rend = gameObject.GetComponent<MeshRenderer>();
-            rend.material.color = Color.HSVToRGB(_hue, 1, 1);
-        }
+        // [ClientRpc]
+        // public void RpcRandomColor(float _hue)
+        // {
+        //     // This is running on every instance of the same object that the client was calling from.
+        //     // i.e. Red GO on Red Client runs Cmd, Red GO on Red, Green and Blue client's run Rpc
+        //     MeshRenderer rend = gameObject.GetComponent<MeshRenderer>();
+        //     rend.material.color = Color.HSVToRGB(_hue, 1, 1);
+        // }
 
         // This is run via the network starting and the player connecting...
         // NOT Unity
@@ -86,6 +125,13 @@ namespace NetworkGame.Networking
             // isLocalPlayer is true if this object is the client's local player otherwise it's false
             PlayerController controller = gameObject.GetComponent<PlayerController>();
             controller.enabled = isLocalPlayer;
+        }
+
+        // This runs when the server starts... ON the server on all clients
+        public override void OnStartServer()
+        {
+            for(int i = 0; i < 10; i++)
+                syncedFloats.Add(Random.Range(0, 11));
         }
     }
 }
