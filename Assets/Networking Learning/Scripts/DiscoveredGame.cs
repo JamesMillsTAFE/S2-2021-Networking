@@ -2,8 +2,13 @@ using kcp2k;
 
 using NetworkGame.Networking;
 
+using System.Net.NetworkInformation;
+using System.Text;
+
 using UnityEngine;
 using UnityEngine.UI;
+
+using Ping = System.Net.NetworkInformation.Ping;
 
 namespace NetworkGame
 {
@@ -42,6 +47,22 @@ namespace NetworkGame
 		}
 
 		// Update is called once per frame
-		private void Update() { }
+		private void Update()
+		{
+			Ping pingSender = new Ping();
+			PingOptions options = new PingOptions
+			{
+				DontFragment = true
+			};
+
+			const string DATA = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			byte[] buffer = Encoding.ASCII.GetBytes(DATA);
+			const int TIMEOUT = 120;
+			PingReply reply = pingSender.Send(response.EndPoint.Address, TIMEOUT, buffer, options);
+			if(reply?.Status == IPStatus.Success)
+			{
+				gameInformation.text = $"<b>{response.EndPoint.Address}</b>\n<size={gameInformation.fontSize / 2}>Ping: {reply.RoundtripTime}</size>";
+			}
+		}
 	}
 }
