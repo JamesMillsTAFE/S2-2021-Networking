@@ -2,6 +2,8 @@ using kcp2k;
 
 using Mirror;
 
+using NetworkGame.Networking;
+
 using System;
 using System.Net;
 
@@ -12,7 +14,8 @@ namespace NetworkGame
 {
 	public class ConnectionMenu : MonoBehaviour
 	{
-		private NetworkManager networkManager;
+		private CustomNetworkManager networkManager;
+		private KcpTransport transport;
 
 		[SerializeField] private Button hostButton;
 		[SerializeField] private InputField inputField;
@@ -20,11 +23,16 @@ namespace NetworkGame
 		
 		private void Start()
 		{
-			networkManager = NetworkManager.singleton;
+			networkManager = CustomNetworkManager.Instance;
+			transport = Transport.activeTransport as KcpTransport;
 			
 			hostButton.onClick.AddListener(OnClickHost);
 			inputField.onEndEdit.AddListener(OnEndEditAddress);
 			connectButton.onClick.AddListener(OnClickConnect);
+
+			CustomNetworkDiscovery discovery = networkManager.discovery;
+			discovery.onServerFound.AddListener(OnFoundServer);
+			discovery.StartDiscovery();
 		}
 
 		private void OnClickHost() => networkManager.StartHost();

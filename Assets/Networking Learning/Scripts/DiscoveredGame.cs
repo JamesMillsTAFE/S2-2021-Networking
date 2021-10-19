@@ -18,11 +18,13 @@ namespace NetworkGame
         [SerializeField] private Text gameInformation;
 
         private CustomNetworkManager networkManager;
+        private KcpTransport transport;
         private DiscoveryResponse response;
 
-        public void Setup(DiscoveryResponse _response)
+        public void Setup(DiscoveryResponse _response, CustomNetworkManager _networkManager, KcpTransport _transport)
         {
-            networkManager = CustomNetworkManager.Instance;
+            networkManager = _networkManager;
+            transport = _transport;
             UpdateResponse(_response);
 
             Button button = gameObject.GetComponent<Button>();
@@ -31,7 +33,7 @@ namespace NetworkGame
                 // Set the ipAddress to the endpoint address
                 networkManager.networkAddress = response.EndPoint.Address.ToString();
                 // Change the port to the correct type and assign the port to it
-                ((KcpTransport)Transport.activeTransport).Port = Convert.ToUInt16(response.EndPoint.Port);
+                transport.Port = Convert.ToUInt16(response.EndPoint.Port);
                 // Start the client with the address information
                 networkManager.StartClient();
             });
