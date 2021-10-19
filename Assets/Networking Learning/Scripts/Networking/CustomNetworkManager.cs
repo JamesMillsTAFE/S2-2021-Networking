@@ -57,6 +57,8 @@ namespace NetworkGame.Networking
 		/// <summary> Whether or not this NetworkManager is the host. </summary>
 		public bool IsHost { get; private set; }
 
+		public CustomNetworkDiscovery discovery;
+
 		/// <summary> The dictionary of all connected players using their NetID as the key. </summary>
 		private readonly Dictionary<uint, NetworkPlayer> players = new Dictionary<uint, NetworkPlayer>();
 
@@ -67,6 +69,8 @@ namespace NetworkGame.Networking
 		public override void OnStartHost()
 		{
 			IsHost = true;
+			// This makes it visible on the network
+			discovery.AdvertiseServer();
 		}
 
 		/// <summary> This is called when a host is stopped. </summary>
