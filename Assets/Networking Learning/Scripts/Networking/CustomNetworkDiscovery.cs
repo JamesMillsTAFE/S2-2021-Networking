@@ -1,3 +1,5 @@
+using kcp2k;
+
 using Mirror;
 using Mirror.Discovery;
 
@@ -19,6 +21,8 @@ namespace NetworkGame.Networking
 		public IPEndPoint EndPoint { get; set; }
 
 		public Uri uri;
+
+		public ushort port;
 
 		public long serverId;
 	}
@@ -67,7 +71,8 @@ namespace NetworkGame.Networking
 				return new DiscoveryResponse()
 				{
 					serverId = ServerId,
-					uri = transport.ServerUri()
+					uri = transport.ServerUri(),
+					port = ((KcpTransport)transport).Port
 				};
 			}
 			catch(NotImplementedException e)
