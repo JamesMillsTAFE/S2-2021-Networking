@@ -125,6 +125,13 @@ namespace NetworkGame.Networking
             // isLocalPlayer is true if this object is the client's local player otherwise it's false
             PlayerController controller = gameObject.GetComponent<PlayerController>();
             controller.enabled = isLocalPlayer;
+            
+            CustomNetworkManager.AddPlayer(this);
+        }
+
+        public override void OnStopClient()
+        {
+            CustomNetworkManager.RemovePlayer(this);
         }
 
         // This runs when the server starts... ON the server on all clients

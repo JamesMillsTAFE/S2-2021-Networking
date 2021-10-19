@@ -20,8 +20,42 @@ namespace NetworkGame.Networking
 			return player;
 		}
 
+		/// <summary> Adds a player to the dictionary. </summary>
+		public static void AddPlayer([NotNull] NetworkPlayer _player) => Instance.players.Add(_player.netId, _player);
+
+		/// <summary> Removes a player from the dictionary. </summary>
+		public static void RemovePlayer([NotNull] NetworkPlayer _player) => Instance.players.Remove(_player.netId);
+
+		/// <summary> A reference to the localplayer of the game. </summary>
+		public static NetworkPlayer LocalPlayer
+		{
+			get
+			{
+				// If the internal localPlayer instance is null
+				if(localPlayer == null)
+				{
+					// Loop through each player in the game and check if it is a local player
+					foreach(NetworkPlayer networkPlayer in Instance.players.Values)
+					{
+						if(networkPlayer.isLocalPlayer)
+						{
+							// Set localPlayer to this player as it is the localPlayer
+							localPlayer = networkPlayer;
+							break;
+						}
+					}
+				}
+
+				// Return the cached local player
+				return localPlayer;
+			}
+		}
+
+		/// <summary> The internal reference to the localPlayer. </summary>
+		private static NetworkPlayer localPlayer;
+
 		/// <summary> Whether or not this NetworkManager is the host. </summary>
-		public bool IsHost { get; private set; } = false;
+		public bool IsHost { get; private set; }
 
 		/// <summary> The dictionary of all connected players using their NetID as the key. </summary>
 		private readonly Dictionary<uint, NetworkPlayer> players = new Dictionary<uint, NetworkPlayer>();
