@@ -1,3 +1,4 @@
+using NetworkGame.Networking;
 using System;
 
 using UnityEngine;
@@ -11,8 +12,10 @@ namespace NetworkGame
 		// Update is called once per frame
 		private void Update()
 		{
-			transform.position += transform.right * Time.deltaTime * speed * Input.GetAxis("Horizontal");
-			transform.position += transform.forward * Time.deltaTime * speed * Input.GetAxis("Vertical");
+			float currentSpeed = speed * (MatchManager.instance.doubleSpeed ? 1 : 2);
+			
+			transform.position += transform.right * Time.deltaTime * currentSpeed * Input.GetAxis("Horizontal");
+			transform.position += transform.forward * Time.deltaTime * currentSpeed * Input.GetAxis("Vertical");
 		}
 	}
 }

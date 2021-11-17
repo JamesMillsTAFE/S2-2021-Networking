@@ -1,6 +1,7 @@
 using Mirror;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace NetworkGame.Networking
 {
@@ -113,6 +114,7 @@ namespace NetworkGame.Networking
         public override void OnStartLocalPlayer()
         {
             // This is run if we are the local player and NOT a remote player
+            SceneManager.LoadSceneAsync("Lobby", LoadSceneMode.Additive);
         }
 
         // This is run via the network starting and the player connecting...
@@ -139,6 +141,18 @@ namespace NetworkGame.Networking
         {
             for(int i = 0; i < 10; i++)
                 syncedFloats.Add(Random.Range(0, 11));
+        }
+
+        public void StartMatch()
+        {
+            if(isLocalPlayer)
+                CmdStartMatch();
+        }
+
+        [Command]
+        public void CmdStartMatch()
+        {
+            MatchManager.instance.StartMatch();
         }
     }
 }

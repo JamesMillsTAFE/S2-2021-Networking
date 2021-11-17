@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Networking Learning/Scenes/Online.unity
     guid: edf07272b8b07534697029b15d4a6047
+  - enabled: 1
+    path: Assets/Networking Learning/Scenes/Lobby.unity
+    guid: 5a8daba3ec2ba284ab0208f6981b390d
   m_configObjects: {}
